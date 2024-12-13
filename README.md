@@ -27,7 +27,7 @@ Deploy an artifact from CI: At this stage, the difference between CI and CD is s
 Continuous Integration in The Real World
 To emphasize a typical CI Pipeline further, let us explore the diagram below a little deeper.
 
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/first%20sceenshot.png)
 
 Version Control: This is the stage where developers' code gets committed and pushed after they have tested their work locally.
 
@@ -119,7 +119,7 @@ Both SIT – For System Integration Testing and UAT – User Acceptance Testing 
 
 What we want to achieve, is having Nginx to serve as a reverse proxy for our sites and tools. Each environment setup is represented in the below table and diagrams.
 
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/third%20screenhot.png)
 
 CI-Environment
 image
@@ -231,27 +231,42 @@ eval `ssh-agent -s`
 ssh-add ade.pem
 ssh-add -l 
 ssh -A ubuntu@34.233.123.4
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/ssh%20into%20the%20jenkins%20server%20and%20create%20ssh%20agent.png)
+
 Navigate to Jenkins URL
 <Jenkins-server-public-IP>:8080
 Install & Open Blue Ocean Jenkins Plugin In the Jenkins dashboard, click on Manage Jenkins -> Manage plugins and search for Blue Ocean plugin. Install and open Blue Ocean plugin
-(screenshot)
-(screenshot)
+
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/install%20blue%20ocean%20on%20jenkins.png)
+
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/downloading%20blue%20ocean.png)
+
 Create a new pipeline
 
 Select GitHub and click on create access token
-(screenshot)
-(screenshot)
+
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/click%20on%20create%20access%20token%20and%20it%20will%20take%20you%20to%20github.png)
+
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/click%20on%20create%20access%20token%20and%20it%20will%20take%20you%20to%20github.png)
 Connect Jenkins with GitHub
-(screenshot)
+
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/creating%20access%20token%20on%20github.png)
+
 Login to GitHub & Generate an Access Token then click on the github repository and create the pipeline
-(screenshot)
+
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/choose%20the%20git%20hub%20repository%20and%20create%20the%20pipeline.png)
+
 At this point you may not have a [Jenkinsfile](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/) in the Ansible repository, so Blue Ocean will attempt to give you some guidance to create one. But we do not need that. We will rather create one ourselves. So, click on Administration to exit the Blue Ocean console.
 
 Here is our newly created pipeline. It takes the name of your GitHub repository
-(screenshot)
+
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/our%20repository%20is%20now%20added%20in%20jenkins.png)
+
 Let us create our Jenkinsfile
 In Vscode, inside the Ansible project, create a new directory and name it deploy, create a new file Jenkinsfile inside the directory
-(screenshot)
+
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/creating%20jenkinsfile%20on%20vscode.png)
+
 Add the code snippet below to start building the Jenkinsfile gradually. This pipeline currently has just one stage called Build and the only thing we are doing is using the shell script module to echo Building Stage
 
 pipeline {
@@ -267,22 +282,34 @@ pipeline {
     }
     }
 }
-(screenshot)
+
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/content%20of%20the%20jenkins%20file.png)
+
 Now go back into the Ansible pipeline in Jenkins, and select configure
-(screenshot)
+
+![screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/go%20to%20jenkins%20and%20select%20configure.png)
+
 Scroll down to Build Configuration section and specify the location of the Jenkinsfile at deploy/Jenkinsfile
-(screenshot)
+
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/Build%20Configuration%20specify%20Jenkinsfile%20at%20deployJenkinsfile.png)
+
 Back to the pipeline again, this time click Build now
-(screenshot)
+
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/result%20after%20clicking%20build%20now.png)
+
 This will trigger a build and you will be able to see the effect of our basic Jenkinsfile configuration by going through the console output of the build.
-(screenshot)
+
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/the%20console%20output.png)
+
 To really appreciate and feel the difference of Cloud Blue UI, it is recommended to try triggering the build again from Blue Ocean interface.
 
 Click on Blue Ocean
 Select your project
 Click on the play button against the branch
-(screenshot)
-(screenshot)
+
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/the%20build%20from%20blue%20ocean%20interface.png)
+
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/the%20build%20from%20blue%20ocean%20interface2.png)
 
 Notice that this pipeline is a multibranch one. This means, if there were more than one branch in GitHub, Jenkins would have scanned the repository to discover them all and we would have been able to trigger a build for each branch.
 
@@ -313,7 +340,7 @@ pipeline {
     }
     }
 }
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/test%20stage%20jenkins%20file%20and%20pushing%20to%20github.png)
 To make your new branch show up in Jenkins, we need to tell Jenkins to scan the repository.
 
 Click on the "Administration" button
@@ -321,10 +348,10 @@ Click on the "Administration" button
 Navigate to the Ansible project and click on Scan repository now
 
 Refresh the page and both branches will start building automatically. You can go into Blue Ocean and see both branches there too.
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/click%20on%20scan%20repository.png)
 
 In Blue Ocean, you can now see how the Jenkinsfile has caused a new step in the pipeline launch build for the new branch.
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/test%20stage%20on%20blue%20ocean.png)
 
 A QUICK TASK FOR YOU!
 1. Create a pull request to merge the latest code into the main branch
@@ -335,44 +362,46 @@ and test stages)
    1. Package 
    2. Deploy 
    3. Clean up
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/additional%20tasks%20for%20more%20stages.png)
+
   . Verify in Blue Ocean that all the stages are working, then merge your feature branch to the main branch
 6. Eventually, your main branch should have a successful pipeline like this in blue ocean
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/additional%20tasks%20for%20more%20stages%20on%20blue%20ocean%20pipeline.png)
+
  Running Ansible Playbook from Jenkins
 Now that you have a broad overview of a typical Jenkins pipeline. Let us get the actual Ansible deployment to work by:
 
 Installing Ansible on Jenkins
 sudo apt update
 sudo apt upgrade -y
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/sudo%20apt%20update%20sudu%20apt%20upgrade.png)
 Install Required Dependencies
 
 sudo apt install software-properties-common -y
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/sudo%20apt%20install%20software%20properties%20common.png)
 Add the Ansible PPA (Personal Package Archive)
 
 sudo add-apt-repository --yes --update ppa:ansible/ansible
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/sudo%20add%20apt%20repository%20yess%20update%20ppa.png)
 sudo apt update
 sudo apt install ansible -y
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/sudo%20apt%20update%20sudo%20apt%20install%20ansible%20y.png)
 Verify the Installation
 
 ansible --version
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/ansible%20version.png)
 
 Installing Ansible plugin in Jenkins UI On the dashboard page, click on Manage Jenkins > Manage plugins > Available type in ansible and install without restart
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/downloading%20ansible%20from%20jenkins.png)
 
 Click on Dashboard > Manage Jenkins > Global Tool Configuration > Add Ansible. Add a name and the path ansible is installed on the jenkins server
 
 Get the path to ansible installed
 
  which ansible
- (screenshot)
+ ![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/which%20ansible.png)
  Then enter the above path to Jenkins GUI as follows
- (screenshot)
+ ![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/adding%20ansible%20path.png)
 
  Creating Jenkinsfile from scratch. (Delete all you currently have in there and start all over to get Ansible to run successfully)
 You can watch a [10 minutes video here](https://youtu.be/PRpEbFZi7nI) to guide you through the entire setup
