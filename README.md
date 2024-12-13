@@ -228,7 +228,7 @@ To do this 0. Set up SSH-agent
 eval `ssh-agent -s`
 ssh-add <path-to-private-key>
 eval `ssh-agent -s`
-ssh-add melkamu_key.pem
+ssh-add ade.pem
 ssh-add -l 
 ssh -A ubuntu@34.233.123.4
 Navigate to Jenkins URL
@@ -325,3 +325,58 @@ Refresh the page and both branches will start building automatically. You can go
 
 In Blue Ocean, you can now see how the Jenkinsfile has caused a new step in the pipeline launch build for the new branch.
 (screenshot)
+
+A QUICK TASK FOR YOU!
+1. Create a pull request to merge the latest code into the main branch
+2. After merging the PR, go back into your terminal and switch into the main branch.
+3. Pull the latest change.
+4. Create a new branch, add more stages into the Jenkins file to simulate below phases. (Just add an echo command like we have in build
+and test stages)
+   1. Package 
+   2. Deploy 
+   3. Clean up
+(screenshot)
+  . Verify in Blue Ocean that all the stages are working, then merge your feature branch to the main branch
+6. Eventually, your main branch should have a successful pipeline like this in blue ocean
+(screenshot)
+ Running Ansible Playbook from Jenkins
+Now that you have a broad overview of a typical Jenkins pipeline. Let us get the actual Ansible deployment to work by:
+
+Installing Ansible on Jenkins
+sudo apt update
+sudo apt upgrade -y
+(screenshot)
+Install Required Dependencies
+
+sudo apt install software-properties-common -y
+(screenshot)
+Add the Ansible PPA (Personal Package Archive)
+
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+(screenshot)
+sudo apt update
+sudo apt install ansible -y
+(screenshot)
+Verify the Installation
+
+ansible --version
+(screenshot)
+
+Installing Ansible plugin in Jenkins UI On the dashboard page, click on Manage Jenkins > Manage plugins > Available type in ansible and install without restart
+(screenshot)
+
+Click on Dashboard > Manage Jenkins > Global Tool Configuration > Add Ansible. Add a name and the path ansible is installed on the jenkins server
+
+Get the path to ansible installed
+
+ which ansible
+ (screenshot)
+ Then enter the above path to Jenkins GUI as follows
+ (screenshot)
+
+ Creating Jenkinsfile from scratch. (Delete all you currently have in there and start all over to get Ansible to run successfully)
+You can watch a [10 minutes video here](https://youtu.be/PRpEbFZi7nI) to guide you through the entire setup
+
+Let's delete the content of current Jenkinsfile nad create a new Jenkinsfile from scratch to run the ansible playbook against the dev environment.
+
+To do this let's ensure git module is checking out SCM from main branch.
