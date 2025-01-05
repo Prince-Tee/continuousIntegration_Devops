@@ -409,3 +409,75 @@ You can watch a [10 minutes video here](https://youtu.be/PRpEbFZi7nI) to guide y
 Let's delete the content of current Jenkinsfile nad create a new Jenkinsfile from scratch to run the ansible playbook against the dev environment.
 
 To do this let's ensure git module is checking out SCM from main branch.
+
+'''
+    pipeline {
+    agent any
+
+  stages {
+     stage("Initial cleanup") {
+      steps {
+        dir("${WORKSPACE}") {
+          deleteDir()
+        }
+      }
+    }
+
+    stage('Checkout SCM') {
+      steps {
+        git branch: 'main', credentialsId: 'gashity_token', url: 'https://github.com/Prince-Tee/ansible-config-mgt.git'
+      }
+    }
+    
+    stage('Prepare Ansible For Execution') {
+      steps {
+        sh 'echo ${WORKSPACE}'
+        sh 'sed -i "3 a roles_path=${WORKSPACE}/roles" ${WORKSPACE}/deploy/ansible.cfg'
+      }
+    }
+
+   stage('Test SSH Connection') {
+    steps {
+        sshagent(['Taiwo']) {
+            sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.47.62 exit'
+        }
+    }
+}
+    
+   
+
+
+    stage('Run Ansible playbook') {
+      steps {
+       ansiblePlaybook credentialsId: 'Taiwo', disableHostKeyChecking: true, installation: 'ansible-config-mgt', inventory: 'inventory/uat.ini', playbook: 'playbooks/uat-webservers.yml', vaultTmpPath: ''
+      }
+    }
+      stage('Clean Workspace after build') {
+      steps {
+        cleanWs(cleanWhenAborted: true, cleanWhenFailure: true, cleanWhenNotBuilt: true, cleanWhenUnstable: true, deleteDirs: true)
+      }
+    }
+
+
+    }
+}
+
+
+'''
+
+(screenshot)
+(screenshot)
+
+Summary
+Initial cleanup: Ensures a fresh workspace.
+
+Checkout SCM: Pulls the latest code.
+
+Prepare Ansible: Configures Ansible for the pipeline.
+
+Test SSH Connections: Verifies connectivity to all servers.
+
+Run Ansible playbook: Deploys infrastructure or applications. Ansible playbook. : - Uses the sshagent step to ensure the SSH key is available for Ansible. - Runs the ansiblePlaybook step with the specified parameters . #### To ensure jenkins properly connects to all servers, you will need to install another plugin known as ssh agent , after that, go to manage jenkins > credentials > global > add credentials , usee ssh username and password , fill out the neccesary details and save.
+
+Clean Workspace: Cleans up files post-build.
+
