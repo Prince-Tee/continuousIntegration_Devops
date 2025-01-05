@@ -465,8 +465,9 @@ To do this let's ensure git module is checking out SCM from main branch.
 
 '''
 
-(screenshot)
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/run%20anisble%20successful.PNG)
+
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/clear%20workspace%20after%20build%20working.PNG)
 
 Summary
 Initial cleanup: Ensures a fresh workspace.
