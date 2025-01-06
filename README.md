@@ -544,9 +544,9 @@ cd /opt/artifactory-oss-6.9.6
 
 sudo ./bin/artifactory.sh start
 
-http://:8081
+http://<ip-address>:8081
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/logged%20into%20the%20jfrog%20artifactory.PNG)
 
 Phase 1: Prepare Jenkins
 1. Fork the Repository
@@ -554,8 +554,9 @@ Fork the following repository into your GitHub account:
 
 https://github.com/StegTechHub/php-todo.git
 
-(screenshot)
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/create%20the%20fork%20of%20the%20todo%20repository.PNG)
+
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/fork%20created.PNG)
 
 2. Install PHP and Dependencies
 On you Jenkins server, install PHP, its dependencies and Composer tool (Feel free to do this manually at first, then update your Ansible accordingly later)
@@ -577,8 +578,8 @@ Verify Installation
 php -v
 composer -v
 
-(screenshot)
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/sudo%20app%20update.PNG)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/composer%20and%20others%20installed.PNG)
 
 3. Install Required Jenkins Plugins
 Plot Plugin: For displaying test reports and code coverage.
@@ -586,10 +587,16 @@ Plot Plugin: For displaying test reports and code coverage.
 (screenshot)
 
 Artifactory Plugin: For uploading code artifacts to Artifactory.
-(screenshot)
+
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/install%20atifactory%20plugin.PNG)
+
+4. Configure Artifactory in Jenkins
+Go to the Jenkins UI, manage Jenkins> system> Jfrog Platform Instances.
+Add Artifactory server details (ID, URL, and credentials).
+Test the connection to ensure it’s working.
+
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/configure%20jfrog%20artifactory%20in%20jenkins.PNG)
 
 Create a local repository todo in your jrog atifactory and  set the repository type to generic
 
-(screenshot)
-
-
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/creating%20local%20repository%20on%20artifactory.PNG)
