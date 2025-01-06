@@ -540,4 +540,56 @@ Install artifactory by following this guide https://www.fosstechnix.com/install-
 ![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/artifactory%20on%20the%20browser%20after%20installation.png)
 
 
+cd /opt/artifactory-oss-6.9.6
+
+sudo ./bin/artifactory.sh start
+
+http://:8081
+
+(screenshot)
+
+Phase 1: Prepare Jenkins
+1. Fork the Repository
+Fork the following repository into your GitHub account:
+
+https://github.com/StegTechHub/php-todo.git
+
+(screenshot)
+(screenshot)
+
+2. Install PHP and Dependencies
+On you Jenkins server, install PHP, its dependencies and Composer tool (Feel free to do this manually at first, then update your Ansible accordingly later)
+sudo apt update
+Install dependancies
+
+sudo apt install -y zip libapache2-mod-php phploc php-{xml,bcmath,bz2,intl,gd,mbstring,mysql,zip}
+Install Composer Download the Installer:
+
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+Install Composer Globally
+
+sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+Remove the Installer
+
+php -r "unlink('composer-setup.php');"
+Verify Installation
+
+php -v
+composer -v
+
+(screenshot)
+(screenshot)
+
+3. Install Required Jenkins Plugins
+Plot Plugin: For displaying test reports and code coverage.
+
+(screenshot)
+
+Artifactory Plugin: For uploading code artifacts to Artifactory.
+(screenshot)
+
+Create a local repository todo in your jrog atifactory and  set the repository type to generic
+
+(screenshot)
+
 
