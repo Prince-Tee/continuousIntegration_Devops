@@ -512,7 +512,7 @@ pipeline {
      }
 }
 
-(Screenshot)
+![(Screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/adding%20the%20inventory%20and%20tag%20parameters%20in%20jenkins%20file.png)
 
 Update the inventory path with this : ${inventory}
 
@@ -526,8 +526,8 @@ Select Build with Parameters.
 Input values for the environment (e.g., sit) and tags (e.g., webserver).
 Click Build Now to execute the deployment.
 
-(screenshot)
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/adding%20inventory%20and%20webserver%20as%20parameters.png)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/after%20adding%20inventory%20and%20tags.png)
 
 # CI/CD Pipeline for PHP TODO Application
 We previously set up a tooling website deployment through Ansible. Now, we are adding another PHP application to our infrastructure management. This application includes unit tests, making it ideal for demonstrating an end-to-end CI/CD pipeline.
@@ -537,7 +537,7 @@ The deployment goal is to use Artifactory for storing and deploying code artifac
 Install Artifactory
 Install artifactory by following this guide https://www.fosstechnix.com/install-jfrog-artifactory-on-ubuntu-24-04-lts/ 
 
-(screenshot)
+![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/artifactory%20on%20the%20browser%20after%20installation.png)
 
 
 
