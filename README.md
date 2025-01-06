@@ -584,7 +584,7 @@ composer -v
 3. Install Required Jenkins Plugins
 Plot Plugin: For displaying test reports and code coverage.
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/download%20plot%20plugin.PNG)
 
 Artifactory Plugin: For uploading code artifacts to Artifactory.
 
