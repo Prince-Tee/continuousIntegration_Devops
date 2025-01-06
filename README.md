@@ -410,7 +410,6 @@ Let's delete the content of current Jenkinsfile nad create a new Jenkinsfile fro
 
 To do this let's ensure git module is checking out SCM from main branch.
 
-'''
     pipeline {
     agent any
 
@@ -425,7 +424,7 @@ To do this let's ensure git module is checking out SCM from main branch.
 
     stage('Checkout SCM') {
       steps {
-        git branch: 'main', credentialsId: 'gashity_token', url: 'https://github.com/Prince-Tee/ansible-config-mgt.git'
+        git branch: 'main', credentialsId: 'Taiwo', url: 'https://github.com/Prince-Tee/ansible-config-mgt.git'
       }
     }
     
@@ -449,7 +448,7 @@ To do this let's ensure git module is checking out SCM from main branch.
 
     stage('Run Ansible playbook') {
       steps {
-       ansiblePlaybook credentialsId: 'Taiwo', disableHostKeyChecking: true, installation: 'ansible-config-mgt', inventory: 'inventory/uat.ini', playbook: 'playbooks/uat-webservers.yml', vaultTmpPath: ''
+       ansiblePlaybook credentialsId: 'Taiwo', disableHostKeyChecking: true, installation: 'ansible-config-mgt', inventory: 'inventory/dev.ini', playbook: 'playbooks/site.yml', vaultTmpPath: ''
       }
     }
       stage('Clean Workspace after build') {
@@ -463,7 +462,6 @@ To do this let's ensure git module is checking out SCM from main branch.
 }
 
 
-'''
 
 ![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/run%20anisble%20successful.PNG)
 
@@ -481,4 +479,65 @@ Test SSH Connections: Verifies connectivity to all servers.
 Run Ansible playbook: Deploys infrastructure or applications. Ansible playbook. : - Uses the sshagent step to ensure the SSH key is available for Ansible. - Runs the ansiblePlaybook step with the specified parameters . #### To ensure jenkins properly connects to all servers, you will need to install another plugin known as ssh agent , after that, go to manage jenkins > credentials > global > add credentials , usee ssh username and password , fill out the neccesary details and save.
 
 Clean Workspace: Cleans up files post-build.
+
+
+# Parameterizing Jenkinsfile For Ansible Deployment
+
+Update SIT Inventory
+Define servers in the sit inventory file:
+
+[tooling]
+SIT-Tooling-Web-Server-Private-IP-Address
+
+[todo]
+SIT-Todo-Web-Server-Private-IP-Address
+
+[lb]
+SIT-Nginx-Private-IP-Address
+
+[db:vars]
+ansible_user=ec2-user
+ansible_python_interpreter=/usr/bin/python
+
+[db]
+SIT-DB-Server-Private-IP-Address
+Add Parameters to Jenkinsfile
+Introduce parameters for environment and tags:
+
+pipeline {
+    agent any
+    parameters {
+       string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
+       string(name: 'tags', defaultValue: '', description: 'Ansible tags to limit execution')
+     }
+}
+
+(Screenshot)
+
+Update the inventory path with this : ${inventory}
+
+Default values ensure the dev environment is used if no other value is specified.
+
+Update the jenkins file to included the ansible tags before it runs playbook
+
+Execute Pipeline in Jenkins
+Go to the pipeline job in Jenkins.
+Select Build with Parameters.
+Input values for the environment (e.g., sit) and tags (e.g., webserver).
+Click Build Now to execute the deployment.
+
+(screenshot)
+(screenshot)
+
+# CI/CD Pipeline for PHP TODO Application
+We previously set up a tooling website deployment through Ansible. Now, we are adding another PHP application to our infrastructure management. This application includes unit tests, making it ideal for demonstrating an end-to-end CI/CD pipeline.
+
+The deployment goal is to use Artifactory for storing and deploying code artifacts, bypassing direct Git integration, this will be done by installing artifactory on a new server.
+
+Install Artifactory
+Install artifactory by following this guide https://www.fosstechnix.com/install-jfrog-artifactory-on-ubuntu-24-04-lts/ 
+
+(screenshot)
+
+
 
