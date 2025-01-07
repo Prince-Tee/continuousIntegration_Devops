@@ -600,3 +600,13 @@ Test the connection to ensure it’s working.
 Create a local repository todo in your jrog atifactory and  set the repository type to generic
 
 ![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/creating%20local%20repository%20on%20artifactory.PNG)
+
+Integrate Artifatory repository with Jenkins
+
+We will create a dummy Jenkinsfile in the php-todo-app repository.
+
+(screenshot)
+
+Using blue ocean, we will create a multibranch jenkins pipeline connected to the php-todo-app repository.
+
+(screenshot)
