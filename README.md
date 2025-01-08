@@ -610,3 +610,16 @@ We will create a dummy Jenkinsfile in the php-todo-app repository.
 Using blue ocean, we will create a multibranch jenkins pipeline connected to the php-todo-app repository.
 
 ![(screenshot)](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/adding%20the%20php%20todo%20as%20a%20new%20pipeline%20in%20jenkins.png)
+(screenshot)
+
+In jenkins server Install my sql client:
+
+sudo apt install mysql-client -y
+
+On the database server, create database and user
+
+CREATE DATABASE homestead;
+
+CREATE USER 'homestead'@'%' IDENTIFIED BY 'YourNewPassword'; 
+
+GRANT ALL PRIVILEGES ON *.* TO 'homestead'@'%';
