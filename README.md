@@ -653,10 +653,11 @@ DB_PASSWORD=YourNewPassword
 DB_CONNECTION=mysql 
 DB_PORT=3306
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/envsample%20file%20in%20the%20todo%20php%20app.PNG)
 
 Save the actual details as environment variables in the Jenkins UI Navigate to Manage jenkins > System > Global properties > Environment variables
-(screenshot)
+
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/adding%20our%20db%20credentials%20to%20jenkins.PNG)
 
 Update Jenkinsfile with proper pipeline configuration
 
@@ -733,14 +734,14 @@ sudo update-alternatives --config php
 Verify the PHP Version Confirm the active PHP version:
 php -v
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/jenkins%20running%20after%20chaning%20the%20content%20of%20the%20jenkins%20file.PNG)
 
 – After successful run of this step, login to the database,password:root
 
 mysql -u root -p
 run show tables and you will see the tables being created for you
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/showing%20database.PNG)
 
 Update the Jenkinsfile to include Unit tests step first install
 composer require --dev phpunit/phpunit
