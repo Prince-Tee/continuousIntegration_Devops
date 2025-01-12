@@ -616,10 +616,133 @@ In jenkins server Install my sql client:
 
 sudo apt install mysql-client -y
 
-On the database server, create database and user
+v3. Configure the Database
+Update the env_vars/dev.yml file to include the todo app database named homestead.:
 
-CREATE DATABASE homestead;
+# MySQL configuration for the development environment
+mysql_root_username: "root"
+mysql_root_password: "YourNewPassword"
 
-CREATE USER 'homestead'@'%' IDENTIFIED BY 'YourNewPassword'; 
+# Define databases and users to be created for the dev environment
+mysql_databases:
+  - name: homestead
+    encoding: utf8
+    collation: utf8_general_ci
 
-GRANT ALL PRIVILEGES ON *.* TO 'homestead'@'%';
+mysql_users:
+  - name: homestead
+    host: "%"
+    password: YourNewPassword
+    priv: "*.*:ALL,GRANT"
+
+Also update your security group for port 3306 to allow inbound traffic from your jenkins server
+
+Login into the DB-server(mysql server) and set the the bind address to 0.0.0.0:
+
+sudo vi /etc/mysql/mysql.conf.d/mysqld.cnf
+Restart the my sql- server:
+
+sudo systemctl restart mysql
+
+Update the database connectivity requirements in the file .env.sample
+
+DB_HOST=172.31.34.228
+DB_DATABASE=homestead
+DB_USERNAME=homestead
+DB_PASSWORD=YourNewPassword
+DB_CONNECTION=mysql 
+DB_PORT=3306
+
+(screenshot)
+
+Save the actual details as environment variables in the Jenkins UI Navigate to Manage jenkins > System > Global properties > Environment variables
+(screenshot)
+
+Update Jenkinsfile with proper pipeline configuration
+
+pipeline {
+    agent any
+    stages {
+        stage('Initial Cleanup') {
+            steps {
+                dir("${WORKSPACE}") {
+                    deleteDir()
+                }
+            }
+        }
+        stage('Checkout SCM') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Prince-Tee/php-todo.git'
+            }
+        }
+        stage('Prepare Dependencies') {
+            steps {
+                script {
+                    // Move .env.sample to .env and set environment variables
+                    sh '''
+                        mv .env.sample .env
+                        echo "DB_HOST=${DB_HOST}" >> .env
+                        echo "DB_PORT=${DB_PORT}" >> .env
+                        echo "DB_DATABASE=${DB_DATABASE}" >> .env
+                        echo "DB_USERNAME=${DB_USERNAME}" >> .env
+                        echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
+                    '''
+                    
+                    // Create bootstrap cache directory with appropriate permissions
+                    sh '''
+                        mkdir -p bootstrap/cache
+                        chown -R jenkins:jenkins bootstrap/cache
+                        chmod -R 775 bootstrap/cache
+                    '''
+                    
+                    // Install Composer dependencies with error handling
+                    sh '''
+                        set -e
+                        composer install --no-scripts
+                    '''
+                    
+                    // Run Laravel artisan commands
+                    sh '''
+                        php artisan key:generate
+                        php artisan clear-compiled
+                        php artisan migrate --force
+                        php artisan db:seed --force
+                    '''
+                }
+            }
+        }
+    }
+}
+
+If the above fails it might be due to composer compatibility issues with your php version, for that try the step below to fix the potential issues:
+
+STEP :
+Downgrade your PHP version to 7.4 if possible:
+Add the Required Repository Ubuntu does not include older PHP versions in its default repositories. Use the ondrej/php PPA (a popular source for PHP packages):
+sudo apt update
+sudo apt install -y software-properties-common
+sudo add-apt-repository -y ppa:ondrej/php
+sudo apt update
+Install PHP 7.4 Install PHP 7.4 and any necessary modules:
+sudo apt install -y php7.4 php7.4-cli php7.4-fpm php7.4-mbstring php7.4-xml php7.4-curl php7.4-mysql
+Update Alternatives Register PHP 7.4 with the update-alternatives system:
+sudo update-alternatives --install /usr/bin/php php /usr/bin/php7.4 74
+sudo update-alternatives --install /usr/bin/php php /usr/bin/php8.3 83
+Switch to PHP 7.4 Use update-alternatives to select PHP 7.4:
+sudo update-alternatives --config php
+Verify the PHP Version Confirm the active PHP version:
+php -v
+
+(screenshot)
+
+– After successful run of this step, login to the database,password:root
+
+mysql -u root -p
+run show tables and you will see the tables being created for you
+
+(screenshot)
+
+Update the Jenkinsfile to include Unit tests step first install
+composer require --dev phpunit/phpunit
+
+
