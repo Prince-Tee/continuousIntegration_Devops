@@ -752,7 +752,8 @@ stage ('Execute Unit Tests') {
                 sh './vendor/bin/phpunit'                
             }
         } 
-(screenshot) 
+
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/execute%20units%20test%20running.PNG)
 
 Phase 3 – Code Quality Analysis
 This is one of the areas where developers, architects and many stakeholders are mostly interested in as far as product development is concerned. As a DevOps engineer, you also have a role to play. Especially when it comes to setting up the tools.
@@ -768,7 +769,8 @@ stage('Code Analysis') {
 
   }
 }
-(screenshot)
+
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/code%20analysis.PNG)
 
 Configure the Plot Plugin Use the Plot plugin to graphically display phploc data in Jenkins. Add the following stage to the Jenkinsfile:
 stage('Plot Code Coverage Report') {
@@ -789,12 +791,14 @@ stage('Plot Code Coverage Report') {
 
       }
     }
-(screenshot)
+
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/plotting%20code%20coverage%20report.PNG)
 
 You should now see a Plot menu item on the left menu. Click on it to see the charts. (The analytics may not mean much to you as it is meant to be read by developers. So, you need not worry much about it – this is just to give you an idea of the real-world implementation).
 
-(screenshot)
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/linesof%20code%20for%20plot%20coverage1.PNG)
+
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/linesof%20code%20for%20plot%20coverage2.PNG)
 
 Bundle the application code for into an artifact (archived package) upload to Artifactory
 stage ('Package Artifact') {
@@ -802,7 +806,8 @@ stage ('Package Artifact') {
             sh 'zip -qr php-todo.zip ${WORKSPACE}/*'
      }
     }
-(screenshot)    
+
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/package%20artifact.PNG)    
 
 Publish the resulted artifact into Artifactory
 stage ('Upload Artifact to Artifactory') {
@@ -825,8 +830,9 @@ stage ('Upload Artifact to Artifactory') {
             }
   
         }
-(screenshot)
+
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/upload%20artifact%20to%20artifactory.PNG)
 
 Confirm upload on Artifactory:
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/confirm%20upload%20on%20jrog%20artifactory%20server.PNG)
