@@ -887,7 +887,7 @@ sudo sysctl -w fs.file-max=65536
 ulimit -n 65536
 ulimit -u 4096
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/temporary%20change%20sonarqube.PNG)
 
 Permanent Changes
 To make these changes persistent:
@@ -905,7 +905,7 @@ Install wget and unzip:
 
 sudo apt-get install wget unzip -y
 
-(screenshot)
+![sh](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/sudo%20apt%20get%20install%20wget%20unzip%20y.PNG)
 
 Step 4: Install OpenJDK and Java Runtime Environment (JRE) 11
 SonarQube is Java-based, so installing Java is a prerequisite.
@@ -923,7 +923,7 @@ From the list, select OpenJDK 11 by entering the corresponding number.
 Verify Java Installation
 java -version
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/openjk%20java%20version.PNG)
 
 Step 5: Install and Configure PostgreSQL
 Add PostgreSQL Repository
@@ -967,7 +967,7 @@ Exit from the psql shell
 Exit the postgres user:
 exit
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/postgre%20installation%20and%20database%20installation.PNG)
 
 
 Step 6: Install SonarQube
@@ -983,7 +983,7 @@ Extract the downloaded archive to the /opt directory:
 sudo unzip sonarqube-9.9.8.100196.zip -d /opt
 sudo mv /opt/sonarqube-9.9.8.100196 /opt/sonarqube
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/installing%20sonarqube.PNG)
 
 Configuring SonarQube for Continuous Integration
 SonarQube is a powerful tool for continuous code quality inspection. This guide outlines the steps for setting up and configuring SonarQube, ensuring it runs optimally within a CI/CD pipeline.
