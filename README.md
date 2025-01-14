@@ -851,7 +851,7 @@ first create an rhel ec2 instance for the development todo webserver named DEV-t
 
 Include it's private IP in the dev environment inventory file.
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/deploy%20to%20dev%20env.PNG)
 
 But how are we certain that the code being deployed has the quality that meets corporate and customer requirements? Even though we have implemented Unit Tests and Code Coverage Analysis with phpunit and phploc, we still need to implement Quality Gate to ensure that ONLY code with the required code coverage, and other quality standards make it through to the environments.
 
