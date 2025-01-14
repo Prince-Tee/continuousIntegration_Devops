@@ -836,3 +836,173 @@ stage ('Upload Artifact to Artifactory') {
 Confirm upload on Artifactory:
 
 ![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/confirm%20upload%20on%20jrog%20artifactory%20server.PNG)
+
+Deploy the application to the dev environment by launching Ansible pipeline
+stage ('Deploy to Dev Environment') {
+    steps {
+    build job: 'ansible-config-mgt/main', parameters: [[$class: 'StringParameterValue', name: 'env', value: 'dev']], propagate: false, wait: true
+    }
+  }
+The build job used in this step tells Jenkins to start another job. In this case it is the ansible-project job, and we are targeting the main branch. Hence, we have ansible-project/main. Since the Ansible project requires parameters to be passed in, we have included this by specifying the parameters section. The name of the parameter is env and its value is dev. Meaning, deploy to the Development environment.
+
+we need to get some things in place first.
+
+first create an rhel ec2 instance for the development todo webserver named DEV-todo-webapp.
+
+Include it's private IP in the dev environment inventory file.
+
+(screenshot)
+
+But how are we certain that the code being deployed has the quality that meets corporate and customer requirements? Even though we have implemented Unit Tests and Code Coverage Analysis with phpunit and phploc, we still need to implement Quality Gate to ensure that ONLY code with the required code coverage, and other quality standards make it through to the environments.
+
+To achieve this, we need to configure SonarQube - An open-source platform developed by SonarSource for continuous inspection of code quality to perform automatic reviews with static analysis of code to detect bugs, code smells, and security vulnerabilities
+
+
+SonarQube Installation
+Understanding SonarQube and Software Quality
+Before diving into the installation of SonarQube, it is crucial to understand the concepts it addresses:
+
+Software Quality
+Software quality refers to the extent to which a software component, system, or process meets specified requirements based on user needs and expectations.
+
+Software Quality Gates
+Quality gates are acceptance criteria presented as a predefined set of quality measures that a software project must satisfy to progress to the next stage of its lifecycle. SonarQube facilitates the creation of these quality gates, ensuring only high-quality software is shipped.
+
+Importance of SonarQube in DevOps
+In DevOps pipelines, speed is essential for software delivery. However, the quality of delivery must not be compromised. SonarQube addresses this by enabling the setup of quality gates, ensuring adherence to predefined quality standards. In this project, we will use the predefined "Sonar Way" quality gate. Custom quality gates can also be defined in collaboration with software testers, developers, and project leads.
+
+SonarQube Installation on Ubuntu 20.04 with PostgreSQL Backend
+This guide walks through the manual installation of SonarQube version 7.9.3 with PostgreSQL as its backend database. The installation process involves configuring the Linux kernel for optimal performance, installing dependencies, setting up PostgreSQL, and configuring SonarQube. Automation using Ansible is recommended for production environments.
+
+First create the sonarqube EC2 instance preferably with t2.medium. Allow inbound traffic on sonarqube default port 9000
+
+Step 1: Tune Linux Kernel
+To optimize the performance of SonarQube, certain kernel parameters need to be adjusted. These changes can be made either for the current session or permanently.
+
+Temporary Changes
+Execute the following commands:
+
+sudo sysctl -w vm.max_map_count=262144
+sudo sysctl -w fs.file-max=65536
+ulimit -n 65536
+ulimit -u 4096
+
+(screenshot)
+
+Permanent Changes
+To make these changes persistent:
+
+Edit the file /etc/security/limits.conf.
+Append the following lines:
+sonarqube - nofile 65536
+sonarqube - nproc 4096
+
+Step 2: Update and Upgrade System Packages
+sudo apt-get update
+sudo apt-get upgrade -y
+Step 3: Install Required Packages
+Install wget and unzip:
+
+sudo apt-get install wget unzip -y
+
+(screenshot)
+
+Step 4: Install OpenJDK and Java Runtime Environment (JRE) 11
+SonarQube is Java-based, so installing Java is a prerequisite.
+
+sudo apt-get install openjdk-17-jdk -y
+sudo apt-get install openjdk-17-jre -y
+
+Set Default JDK
+If multiple versions of Java are installed, set OpenJDK 11 as the default:
+
+sudo update-alternatives --config java
+
+From the list, select OpenJDK 11 by entering the corresponding number.
+
+Verify Java Installation
+java -version
+
+(screenshot)
+
+Step 5: Install and Configure PostgreSQL
+Add PostgreSQL Repository
+
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
+
+Add PostgreSQL Key
+
+wget -q https://www.postgresql.org/media/keys/ACCC4CF8.asc -O - | sudo apt-key add -
+
+Install PostgreSQL
+sudo apt-get install postgresql postgresql-contrib -y
+
+Start and Enable PostgreSQL
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+Configure PostgreSQL
+Change the password for the default postgres user:
+
+sudo passwd postgres
+Switch to the postgres user:
+
+su - postgres
+
+Create a new user and database for SonarQube:
+
+Create a new user by typing
+createuser sonar
+Switch to the PostgreSQL shell
+psql
+Set a password for the newly created user for SonarQube database
+ALTER USER sonar WITH ENCRYPTED password 'sonar';
+Create a new database for PostgreSQL database by running:
+CREATE DATABASE sonarqube OWNER sonar;
+Grant all privileges to sonar user on sonarqube Database.
+grant all privileges on DATABASE sonarqube to sonar;
+Exit from the psql shell
+\q
+
+Exit the postgres user:
+exit
+
+(screenshot)
+
+
+Step 6: Install SonarQube
+Download and Extract SonarQube
+Navigate to the /tmp directory:
+
+cd /tmp
+Download SonarQube:
+
+ sudo wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-9.9.8.100196.zip
+Extract the downloaded archive to the /opt directory:
+
+sudo unzip sonarqube-9.9.8.100196.zip -d /opt
+sudo mv /opt/sonarqube-9.9.8.100196 /opt/sonarqube
+
+(screenshot)
+
+Configuring SonarQube for Continuous Integration
+SonarQube is a powerful tool for continuous code quality inspection. This guide outlines the steps for setting up and configuring SonarQube, ensuring it runs optimally within a CI/CD pipeline.
+
+Step 1: Create a User and Group for SonarQube
+To prevent running SonarQube as the root user:
+
+Create a group named sonar:
+sudo groupadd sonar
+Add a user named sonar to manage the SonarQube directory:
+sudo useradd -c "User to run SonarQube" -d /opt/sonarqube -g sonar sonar
+sudo chown sonar:sonar /opt/sonarqube -R
+Step 2: Configure SonarQube
+Open the SonarQube configuration file:
+
+sudo vim /opt/sonarqube/conf/sonar.properties
+Update the database connection settings:
+
+sonar.jdbc.username=sonar
+sonar.jdbc.password=sonar
+sonar.jdbc.url=jdbc:postgresql://localhost:5432/sonarqube
+Save and close the file. 
