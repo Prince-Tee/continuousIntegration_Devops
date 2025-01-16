@@ -1,185 +1,41 @@
-The error occurs because the `ansible.cfg` file that your `sed` command is trying to modify does not exist in the specified path (`${WORKSPACE}/deploy/ansible.cfg`). Here's how to troubleshoot and resolve the issue step-by-step:
+Self-Study Documentation on CI/CD with Jenkins, Ansible, and Error Troubleshooting
+Overview
 
----
+This documentation serves as a self-study guide for understanding Continuous Integration (CI) and Continuous Delivery (CD) using Jenkins, Ansible, and related tools. It also addresses common errors encountered during the setup and execution of CI/CD pipelines, providing troubleshooting steps and best practices.
 
-### 1. **Verify the Directory Structure**
-   - After your `Checkout SCM` stage, the repository files should be cloned into the Jenkins workspace.
-   - Ensure that the `deploy` directory and `ansible.cfg` file exist in your repository.
+1. Understanding CI/CD Concepts
+Continuous Integration (CI): A practice where developers frequently merge their code changes into a shared repository. This helps reduce integration issues and allows for early detection of defects.
+Continuous Delivery (CD): Ensures that the software is always in a deployable state. This involves automating the deployment process after successful testing.
+Key Tools: Jenkins for automation, Ansible for configuration management, and SonarQube for code quality analysis.
 
-   **How to check:**
-   - Navigate to your GitHub repository (`https://github.com/Prince-Tee/ansible-config-mgt.git`).
-   - Confirm the following structure exists:
-     ```
-     deploy/
-     └── ansible.cfg
-     ```
+2. Common Errors and Troubleshooting Steps
+Error: Missing ansible.cfg
+Cause: The ansible.cfg file does not exist in the specified path (${WORKSPACE}/deploy/ansible.cfg).
+Solution Steps:
+Verify Directory Structure:
+Ensure the deploy directory and ansible.cfg file exist in your repository.
+If missing, create it with basic content:
+text
+[defaults]
+inventory = inventory/dev.ini
+Update Your Repository:
+Add the ansible.cfg file to your local repository and push the changes.
+Error: sshagent Not Recognized
+Cause: The SSH Agent Plugin may not be installed or configured correctly in Jenkins.
+Solution Steps:
+Install or Update the SSH Agent Plugin:
+Navigate to Jenkins Dashboard > Manage Jenkins > Manage Plugins.
+Install or update the plugin as needed.
+Configure Credentials:
+Go to Manage Jenkins > Manage Credentials and add an SSH private key.
+Modify Jenkinsfile:
+Ensure correct usage of sshagent in your pipeline script.
 
-   If the `ansible.cfg` file is missing, create it with the following basic content:
-   ```ini
-   [defaults]
-   inventory = inventory/dev.ini
-   ```
-
----
-
-### 2. **Update Your Repository**
-   - If the `ansible.cfg` file or the `deploy` directory is missing, add them to your repository locally, then push the changes:
-     ```bash
-     git add deploy/ansible.cfg
-     git commit -m "Added ansible.cfg to deploy directory"
-     git push origin main
-     ```
-
----
-The issue seems to be stemming from the fact that the sshagent step is not recognized in your Jenkins pipeline. Here's a breakdown of the situation and steps to address it:
-
-Problem Analysis
-sshagent DSL Method Missing:
-The error clearly states that sshagent is not recognized among the available steps or symbols in Jenkins. This happens when the required Jenkins plugin (SSH Agent Plugin) is either:
-
-Not installed.
-Not configured properly.
-Outdated or incompatible with your current Jenkins version.
-Pipeline Stages Behavior:
-
-The "Prepare Ansible For Execution" stage ran successfully.
-The "Test SSH Connection" stage, which presumably involves sshagent, failed due to the missing DSL method.
-Subsequent stages ("Run Ansible playbook" and "Clean Workspace after build") were skipped because they depend on the success of the earlier stage.
-GitHub API Rate Limit:
-You also encountered a temporary delay due to GitHub API rate limiting. While unrelated to the pipeline execution error, it's worth addressing to avoid build delays.
-
-Solution Steps
-1. Install or Update the SSH Agent Plugin
-Go to Jenkins Dashboard > Manage Jenkins > Manage Plugins.
-Search for "SSH Agent Plugin" under the Available or Installed tabs.
-If not installed, install the plugin and restart Jenkins.
-If installed, update the plugin to the latest version and restart Jenkins.
-2. Verify Plugin Configuration
-Ensure your Jenkins server has credentials configured for SSH:
-Go to Manage Jenkins > Manage Credentials.
-Add an SSH private key under the appropriate credentials store (e.g., Global or Folder scope).
-3. Modify Your Jenkinsfile
-If the plugin and credentials are correctly configured, ensure your Jenkinsfile uses the correct syntax for sshagent. Here's an example snippet:
-
-If you've already added the contents of the .pem file to the Jenkins SSH Agent plugin and assigned it an ID (e.g., private-key), you no longer need to explicitly specify the -i /home/ubuntu/.ssh/ade.pem option in your ssh command. The SSH Agent plugin automatically handles the private key for you.
-
-Here's how to modify your pipeline stage:
-
-Updated Jenkinsfile snippet:
-groovy
-Copy code
-stage('Test SSH Connection') {
-    steps {
-        sshagent(['private-key']) {
-            sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.47.62 exit'
-        }
-    }
-}
-Replace 'your-ssh-credential-id' with the ID of the SSH credentials you configured.
-
- Use "Managed Credentials" with sshagent
-If you prefer using sshagent as initially suggested, you need to add the .pem file to Jenkins' Managed Credentials store. Here's how:
-
-Add the Private Key to Managed Credentials:
-
-Go to Manage Jenkins > Credentials.
-Find the appropriate credentials scope (e.g., Global or a specific folder or pipeline).
-Click Add Credentials.
-Choose SSH Username with Private Key.
-Enter:
-ID: A unique identifier (e.g., private-key).
-Username: ec2-user.
-Private Key: Paste the .pem file content.
-Save.
-Update the Pipeline: Use the ID (private-key) in the sshagent block:
-
-groovy
-Copy code
-pipeline {
-    agent any
-    stages {
-        stage('Test SSH Connection') {
-            steps {
-                sshagent(['private-key']) {
-                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.47.62 exit'
-                }
-            }
-        }
-    }
-}
-
-
-
-so if I use the public key to open the uat server, will I still be able to directly ssh into the server with the private key in my local computer and the jenkins credentials configuration which is the private key will work for the uat server
-ChatGPT said:
-ChatGPT
-Yes, if you correctly configure the UAT server with the public key derived from your private key (ade.pem), you will be able to:
-
-SSH Directly into the Server from Your Local Machine:
-The private key on your local machine (ade.pem) will match the public key configured on the server. SSH will authenticate successfully.
-
-Use Jenkins Credentials for the UAT Server:
-If the private key in Jenkins matches the public key configured on the UAT server, Jenkins will also be able to authenticate and run tasks on the UAT server using SSH.
-
-
-
-
-pipeline {
-    agent any
-    stages {
-        stage('Initial Cleanup') {
-            steps {
-                dir("${WORKSPACE}") {
-                    deleteDir()
-                }
-            }
-        }
-        stage('Checkout SCM') {
-            steps {
-                git branch: 'main', url: 'https://github.com/Prince-Tee/php-todo.git'
-            }
-        }
-        stage('Prepare Dependencies') {
-            steps {
-                script {
-                    // Move .env.sample to .env and set environment variables
-                    sh '''
-                        mv .env.sample .env
-                        echo "APP_KEY=" >> .env
-                        echo "DB_HOST=${DB_HOST}" >> .env
-                        echo "DB_PORT=${DB_PORT}" >> .env
-                        echo "DB_DATABASE=${DB_DATABASE}" >> .env
-                        echo "DB_USERNAME=${DB_USERNAME}" >> .env
-                        echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
-                    '''
-                    
-                    // Create bootstrap cache directory with appropriate permissions
-                    sh '''
-                        mkdir -p bootstrap/cache
-                        chown -R jenkins:jenkins bootstrap/cache
-                        chmod -R 775 bootstrap/cache
-                    '''
-                    
-                    // Install Composer dependencies with error handling
-                    sh '''
-                        set -e
-                        composer install --no-scripts
-                    '''
-                    
-                    // Run Laravel artisan commands
-                    sh '''
-                        php artisan key:generate
-                        php artisan clear-compiled
-                        php artisan migrate --force
-                        php artisan db:seed --force
-                    '''
-                }
-            }
-        }
-        stage ('Execute Unit Tests') {
-            steps {
-                sh './vendor/bin/phpunit'                
-            }
-        } 
-    }
-}
+3. Best Practices for CI/CD Pipelines
+Maintain a code repository.
+Automate the build process.
+Ensure builds are self-tested.
+Commit to the baseline daily.
+Keep builds fast and test in a production-like environment.
+Conclusion
+Understanding CI/CD principles is crucial for modern software development practices. By familiarizing yourself with common errors and their resolutions, you can effectively implement robust CI/CD pipelines using Jenkins and Ansible.

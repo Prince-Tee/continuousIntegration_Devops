@@ -999,10 +999,284 @@ sudo chown sonar:sonar /opt/sonarqube -R
 Step 2: Configure SonarQube
 Open the SonarQube configuration file:
 
-sudo vim /opt/sonarqube/conf/sonar.properties
+sudo nano /opt/sonarqube/conf/sonar.properties
 Update the database connection settings:
 
 sonar.jdbc.username=sonar
 sonar.jdbc.password=sonar
 sonar.jdbc.url=jdbc:postgresql://localhost:5432/sonarqube
 Save and close the file. 
+
+(screenshot)
+
+Edit the SonarQube script file to specify the sonar user:
+sudo nano /opt/sonarqube/bin/linux-x86-64/sonar.sh
+
+Update the RUN_AS_USER field:
+RUN_AS_USER=sonar
+
+(screenshot)
+
+Step 3: Start SonarQube
+Switch to the sonar user:
+sudo su sonar
+Navigate to the startup script directory:
+cd /opt/sonarqube/bin/linux-x86-64/
+Start SonarQube:
+./sonar.sh start
+Expected output:
+Starting SonarQube...
+Started SonarQube
+Check the status of SonarQube:
+./sonar.sh status
+
+(screenshot)
+
+To monitor logs:
+tail /opt/sonarqube/logs/sonar.log
+
+Step 4: Configure SonarQube as a Systemd Service
+Stop the currently running SonarQube instance:
+./sonar.sh stop
+Create a systemd service file:
+sudo nano /etc/systemd/system/sonar.service
+Add the following configuration:
+[Unit]
+Description=SonarQube service
+After=syslog.target network.target
+
+[Service]
+Type=forking
+ExecStart=/opt/sonarqube/bin/linux-x86-64/sonar.sh start
+ExecStop=/opt/sonarqube/bin/linux-x86-64/sonar.sh stop
+User=sonar
+Group=sonar
+Restart=always
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
+Save and close the file.
+
+(screenshot)
+
+Start the SonarQube service:
+
+sudo systemctl start sonar
+Enable SonarQube to start at boot:
+
+sudo systemctl enable sonar
+Verify the service status:
+
+sudo systemctl status sonar
+
+(screenshot)
+
+Step 5: Access SonarQube
+Visit sonarqube config file and uncomment the line of sonar.web.port=9000
+sudo nano /opt/sonarqube/conf/sonar.properties
+
+(screenshot)
+
+Open your browser and navigate to the SonarQube instance:
+firstly add an inbound rule for port 9000 in your AWS security group
+
+http://<server_IP>:9000
+
+Replace <server_IP> with your server's IP address.
+
+(screenshot)
+
+Login with the default credentials:
+Username: admin
+Password: admin
+
+(screenshot)
+
+Change the default password for better security.
+
+
+Configuring SonarQube and Jenkins for Quality Gate
+Steps to Configure SonarQube in Jenkins
+1. Install SonarQube Scanner Plugin
+Go to Manage Jenkins > Plugins > Available Plugins.
+Search for SonarQube Scanner and install it.
+2. Add SonarQube Server in Jenkins
+Navigate to Manage Jenkins > Configure System.
+
+Under "SonarQube Servers":
+
+Add a new server configuration.
+Provide a name (e.g., sonarqube).
+Input the server URL (e.g., http://<SonarQube-Server-IP>:9000).
+Add authentication token generated in the next step.
+
+(screenshot)
+
+3. Generate Authentication Token in SonarQube
+Log into SonarQube and navigate to User > My Account > Security > Generate Tokens.
+Create a token and copy it.
+
+Paste the token in the Jenkins configuration under SonarQube server authentication
+
+4. Configure Webhook for Quality Gate
+In SonarQube, navigate to Administration > Configuration > Webhooks > Create.
+Add the Jenkins server URL for the webhook: http://<JENKINS_HOST>/sonarqube-webhook/.
+Save the configuration.
+
+(screenshot)
+
+Configure SonarQubeScanner tool:
+Manage jenkins > Tools > Add SonarQube scanner
+
+
+Update Jenkins Pipeline for SonarQube
+1. Quality Gate Stage in Jenkinsfile
+Add the following snippet to your Jenkinsfile:
+
+stage('SonarQube Quality Gate') {
+    environment {
+        scannerHome = tool 'SonarQubeScanner'
+    }
+    steps {
+        withSonarQubeEnv('sonarqube') {
+            sh "${scannerHome}/bin/sonar-scanner"
+        }
+    }
+}
+(SCREESNHOT ERROR)
+
+note: The above step will fail because we have not updated `sonar-scanner.properties
+
+Configure sonar-scanner.properties
+Locate the scanner configuration directory on the Jenkins server:
+
+cd /var/lib/jenkins/tools/hudson.plugins.sonar.SonarRunnerInstallation/SonarQubeScanner/conf/
+
+sudo vi sonar-scanner.properties
+Update the file with your project configuration. Example for php-todo:
+
+sonar.host.url=http://<SonarQube-Server-IP>:9000
+sonar.projectKey=php-todo
+#----- Default source code encoding
+sonar.sourceEncoding=UTF-8
+sonar.php.exclusions=**/vendor/**
+sonar.php.coverage.reportPaths=build/logs/clover.xml
+sonar.php.tests.reportPath=build/logs/junit.xml
+hint: To know what exactly to put inside the sonar-scanner.properties file, SonarQube has a configurations page where you can get some directions.
+
+3. Examine Scanner Tool
+Verify the scanner setup:
+
+cd /var/lib/jenkins/tools/hudson.plugins.sonar.SonarRunnerInstallation/SonarQubeScanner/bin
+ls -latr
+
+You should see files like sonar-scanner and sonar-scanner-debug.
+
+Run the build again
+
+(screenshot)
+
+4. Generate Pipeline Syntax
+To generate additional code snippets for SonarQube integration:
+
+Navigate to Dashboard > pht-todo > Pipeline Syntax in Jenkins.
+Click on steps then, Select withSonarQubeEnv.
+Generate and add the required block to your pipeline.
+
+(screenshot)
+
+Run the build again
+
+But we are not completely done yet!
+The quality gate we just included has no effect. Why? Well, because if you go to the SonarQube UI, you will realise that we just pushed a poor-quality code onto the development environment.
+
+Navigate to php-todo project in SonarQube
+
+Implementing Quality Gate Conditions
+1. Update Pipeline to Include Branch Filtering and Timeout
+Modify the Jenkinsfile to check branch names and enforce quality gate conditions:
+
+stage('SonarQube Quality Gate') {
+    when {
+        branch pattern: "^develop*|^hotfix*|^release*|^main*", comparator: "REGEXP"
+    }
+    environment {
+        scannerHome = tool 'SonarQubeScanner'
+    }
+    steps {
+        withSonarQubeEnv('sonarqube') {
+            sh "${scannerHome}/bin/sonar-scanner -Dproject.settings=sonar-project.properties"
+        }
+        timeout(time: 1, unit: 'MINUTES') {
+            waitForQualityGate abortPipeline: true
+        }
+    }
+}
+2. Test Pipeline with Different Branches
+Push code to branches like develop, hotfix, release, or main.
+Observe that only code from these branches triggers the quality gate.
+Deploy to Higher Environments
+Branching Strategy (GitFlow)
+Develop: Active development.
+Release: Staging environment.
+Hotfix: Emergency fixes.
+Main: Stable production.
+Ensure deployment happens only from allowed branches.
+
+Additional Configuration Tasks
+1. Jenkins Agents/Slaves
+Jenkins architecture is fundamentally "Master+Agent". The master is designed to do co-ordination and provide the GUI and API endpoints, and the Agents are designed to perform the work. The reason being that workloads are often best "farmed out" to distributed servers.
+
+Add two servers as Jenkins agents (Create two t2.medium) and install Java 17 on them.
+
+Configure Jenkins to run jobs on any available slave node.
+Go to dashboard > manage jenkins > security > Agents
+
+Set the TCP port for inbound agents to fixed and set the port at 5000 ( or any one you choose )
+
+Navigate to Dashboard > Manage Jenkins > Nodes
+Create new node
+
+
+Name: slave_1
+Add /opt/build in the remote directory space (This can be any directory for the builds)
+Labels: slave_1
+Save
+
+
+
+
+go back to slave terminal and run the following command
+sudo mkdir -p /opt/build
+sudo chown -R ubuntu:ubuntu /opt/build
+sudo chmod -R 755 /opt/build
+ls -ld /opt/build
+curl -sO http://54.172.13.141:8080/jnlpJars/agent.jar
+
+
+java -jar agent.jar -url http://54.172.13.141:8080/ -secret 654f1b09f00eb7476ab609cc5a304651e01dc69849e193abf048869c61850a1d -name "slave_1" -workDir "/opt/build"
+
+
+Repeat for slave_2
+
+
+
+
+
+
+2. Webhook Between Jenkins and GitHub
+Set up a webhook in GitHub to trigger the Jenkins pipeline upon code push.
+
+
+This project demonstrates the implementation of a comprehensive CI/CD pipeline for a PHP-based application using Jenkins, Ansible, Artifactory, SonarQube, and MySQL, ensuring automated builds, tests, deployments, and code quality analysis.
+Key features include integrating Jenkins pipelines for multistage builds, Ansible for automated deployment, SonarQube for static code analysis, and Artifactory for artifact management.
+The pipeline manages environment-specific configurations, runs unit tests, evaluates code quality against predefined gates, and deploys the application across multiple environments (e.g., Dev, SIT, UAT).
+Challenges faced include setting up tools compatible with PHP 7.4, managing security credentials across tools, and ensuring seamless connectivity between Jenkins and remote servers.
+This project showcases how companies can streamline development lifecycles, improve code quality, and enhance collaboration using DevOps principles.
+
+conclusion
+
+This project outlines the principles and practices of Continuous Integration (CI) and Continuous Delivery (CD) within software development, emphasizing the importance of understanding these concepts before practical implementation. It explains that CI involves merging developers' code into a shared repository multiple times a day to minimize integration issues, while CD ensures that code is always ready for deployment. The document details the roles of various tools like Jenkins, Ansible, and SonarQube in automating the build, test, and deployment processes, highlighting the difference between Continuous Delivery and Continuous Deployment. It also discusses best practices for establishing a robust CI/CD pipeline, such as maintaining a code repository and automating the build process. Additionally, it introduces key metrics for evaluating DevOps success, focusing on deployment frequency, lead time, and defect escape rate.
+In conclusion, adopting CI/CD practices can significantly enhance software development efficiency and quality by promoting frequent integration and automated testing.
