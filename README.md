@@ -1,4 +1,6 @@
-EXPERIENCE CONTINUOUS INTEGRATION WITH JENKINS | ANSIBLE | ARTIFACTORY | SONARQUBE | PHP
+# EXPERIENCE CONTINUOUS INTEGRATION WITH JENKINS | ANSIBLE | ARTIFACTORY | SONARQUBE | PHP
+
+
 IMPORTANT NOTICE – This project has some initial theoretical concepts that must be well understood before moving on to the practical part. Please read it carefully as many times as needed to completely digest the most important and fundamental DevOps concepts. To successfully implement this project, it is crucial to grasp the importance of the entire CI/CD process, roles of each tool and success metrics – so we encourage you to thoroughly study the following theory until you feel comfortable explaining all the concepts (e.g., to your new junior colleague or during a job interview).
 
 In previous projects, you have been deploying a tooling website directly into the var/www/html directory on dev servers. Well, even though that worked fine, and we were able to access the website, it is not the best way to do it. Real world web application code written on Java, .NET or other compiled programming languages require a build stage to create an executable file. The executable file (e.g., jar file in case of Java) contains all the codes embedded, and the necessary library dependencies, which the application needs to run and work successfully.
@@ -1007,7 +1009,7 @@ sonar.jdbc.password=sonar
 sonar.jdbc.url=jdbc:postgresql://localhost:5432/sonarqube
 Save and close the file. 
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/updating%20sonar%20qube%20with%20username%20and%20password.PNG)
 
 Edit the SonarQube script file to specify the sonar user:
 sudo nano /opt/sonarqube/bin/linux-x86-64/sonar.sh
@@ -1015,7 +1017,7 @@ sudo nano /opt/sonarqube/bin/linux-x86-64/sonar.sh
 Update the RUN_AS_USER field:
 RUN_AS_USER=sonar
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/run%20as%20user%20sonar.PNG)
 
 Step 3: Start SonarQube
 Switch to the sonar user:
@@ -1030,10 +1032,12 @@ Started SonarQube
 Check the status of SonarQube:
 ./sonar.sh status
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/running%20sonarqube.PNG)
 
 To monitor logs:
 tail /opt/sonarqube/logs/sonar.log
+
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/monitor%20sonarqube.PNG)
 
 Step 4: Configure SonarQube as a Systemd Service
 Stop the currently running SonarQube instance:
@@ -1059,7 +1063,7 @@ LimitNPROC=4096
 WantedBy=multi-user.target
 Save and close the file.
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/content%20of%20systemd%20system%20sonar%20service.PNG)
 
 Start the SonarQube service:
 
@@ -1071,13 +1075,13 @@ Verify the service status:
 
 sudo systemctl status sonar
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/enabling%20sonar.PNG)
 
 Step 5: Access SonarQube
 Visit sonarqube config file and uncomment the line of sonar.web.port=9000
 sudo nano /opt/sonarqube/conf/sonar.properties
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/uncomment%20the%20line%209000.PNG)
 
 Open your browser and navigate to the SonarQube instance:
 firstly add an inbound rule for port 9000 in your AWS security group
@@ -1086,13 +1090,13 @@ http://<server_IP>:9000
 
 Replace <server_IP> with your server's IP address.
 
-(screenshot)
+![sceenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/sonar%20qube%209000.PNG)
 
 Login with the default credentials:
 Username: admin
 Password: admin
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/login%20with%20admin%20admin%20on%209000.PNG)
 
 Change the default password for better security.
 
@@ -1112,7 +1116,7 @@ Provide a name (e.g., sonarqube).
 Input the server URL (e.g., http://<SonarQube-Server-IP>:9000).
 Add authentication token generated in the next step.
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/configure%20sonarqube%20on%20jenkins.PNG)
 
 3. Generate Authentication Token in SonarQube
 Log into SonarQube and navigate to User > My Account > Security > Generate Tokens.
@@ -1125,7 +1129,7 @@ In SonarQube, navigate to Administration > Configuration > Webhooks > Create.
 Add the Jenkins server URL for the webhook: http://<JENKINS_HOST>/sonarqube-webhook/.
 Save the configuration.
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/adding%20jenins%20server%20to%20sonarqube.PNG)
 
 Configure SonarQubeScanner tool:
 Manage jenkins > Tools > Add SonarQube scanner
@@ -1145,7 +1149,8 @@ stage('SonarQube Quality Gate') {
         }
     }
 }
-(SCREESNHOT ERROR)
+
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/ERROR%20ON%20SONAR%20QUBE.PNG)
 
 note: The above step will fail because we have not updated `sonar-scanner.properties
 
@@ -1176,7 +1181,7 @@ You should see files like sonar-scanner and sonar-scanner-debug.
 
 Run the build again
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/sonarqube%20now%20running.PNG)
 
 4. Generate Pipeline Syntax
 To generate additional code snippets for SonarQube integration:
@@ -1185,9 +1190,11 @@ Navigate to Dashboard > pht-todo > Pipeline Syntax in Jenkins.
 Click on steps then, Select withSonarQubeEnv.
 Generate and add the required block to your pipeline.
 
-(screenshot)
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/generate%20pipeline%20script%20for%20sonarqube.PNG)
 
 Run the build again
+
+![screenshot](https://github.com/Prince-Tee/continuousIntegration_Devops/blob/main/sreenshot%20from%20my%20environment/sonarqube%20now%20running.PNG)
 
 But we are not completely done yet!
 The quality gate we just included has no effect. Why? Well, because if you go to the SonarQube UI, you will realise that we just pushed a poor-quality code onto the development environment.
